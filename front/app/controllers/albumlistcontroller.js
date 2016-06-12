@@ -1,44 +1,43 @@
-(function() {
+'use strict';
 
-    function AlbumListController ($scope, albumProvider, $location) {
+/* Controllers */
+(function(){
+	function AlbumListController($scope,albumProvider){
+		$scope.new_album = {};
+		$scope.add_album_error="";
+		$scope.albums = albumProvider.getAlbums();
+		$scope.add_album = function(new_album) {
+			$scope.validate(new_album);
+			if(_.isEmpty($scope.add_album_error)) {
+				//$scope.albums.push(new_album);
+				albumProvider.addAlbum(new_album);
+				$scope.new_album = {};
+		    }
+		}
 
-        $scope.new_album = {};
-        $scope.add_error_text = '';
-        $scope.page_load_error = "";
+        $scope.init = function() {
+          $( "#datepicker" ).datepicker();
+        }
 
-        albumProvider.getAlbums(function (err, albums) {
-            if (err) {
-                $scope.page_load_error = "Unexpected error loading albums: " + e.message;
-            } else {
-                $scope.albums = albums;
-            }
-        });
+		$scope.validate = function(album) {
+			$scope.add_album_error="";
+			if(_.isEmpty(album.title)) {
+				$scope.add_album_error = "Missing album title";
+			} else if (_.isEmpty(album.name)) {
+				$scope.add_album_error = "Missing album name";
+			} else if (_.isEmpty(album.description)) {
+				$scope.add_album_error = "Missing album description";
+			} else if (_.isEmpty(album.date)) {
+				$scope.add_album_error = "Missing album date";
+			}
+		}
 
-        $scope.addAlbum = function (album_data) {
+        $scope.init();
+			
+	}
 
-            albumProvider.addAlbum(album_data, function (err, results) {
-                if (err) {
-                    if (err.code == "missing_title")
-                        $scope.add_error_text = "Missing title";
-                    else if (err.code == "bad_date")
-                        $scope.add_error_text = "You must specify a date (yyyy/mm/dd)";
-                    else if (err.code == "missing_description")
-                        $scope.add_error_text = "Missing description";
-                    else if (err.code == "bad_name")
-                        $scope.add_error_text = "Short album name must be at least 6 chars (ironic, yes)";
-                } else {
-                    // looks good!
-                    $scope.new_album = {};
-                    $scope.add_error_text = '';
-
-                    // now, redirect to load in the album!
-                    $location.path("/album/" + album_data.name);
-                }
-
-            });
-        };
-    }
-
-    photoApp.controller("AlbumListController", AlbumListController);
-
+	albumApp.controller("AlbumListController", AlbumListController);
+	albumApp.controller("Controller_404", function($scope, $http){
+		$scope.error_message = "oops, not working...";
+	});
 })();
